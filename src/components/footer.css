@@ -1,0 +1,50 @@
+.containerFooter {
+  margin-top: 100px;
+  display: flex;
+}
+
+.col {
+  justify-content: space-around;
+}
+
+.logoFooter {
+  height: 250px;
+  width: 250px;
+  flex-wrap: wrap;
+}
+
+.logoFooter img{
+  height: 200px;
+  width: 210px;
+}
+
+.logoFooter p {
+  margin-left: 45px;
+  color: rgb(145, 143, 143);
+}
+
+.textFooter {
+  height: 220px;
+  width: 220px;
+  color: rgb(44, 41, 41);
+}
+
+.textFooter p {
+  line-height: 1.5em;
+}
+
+
+.column ul {
+  list-style: none;
+}
+
+.column ul li {
+  padding: 5px;
+  color: rgb(44, 41, 41);
+  margin-bottom: 0;
+}
+
+.column h3 {
+  margin-left: 40px;
+  color: rgb(44, 41, 41);
+}

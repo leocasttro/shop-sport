@@ -43,10 +43,10 @@ export const categories = [
   }
 ]
 
-const popularProduct = [
+export const popularProducts = [
   {
     id: 1,
-    img: "../assets/img/barcelona.png"
+    img: "../assets/img/cp.png"
   },
   {
     id: 2,
@@ -67,5 +67,13 @@ const popularProduct = [
   {
     id: 6,
     img: "../assets/img/napoli.png"
+  },
+  {
+    id: 7,
+    img: "../assets/img/fla.png"
+  },
+  {
+    id: 8,
+    img: "../assets/img/atm.png"
   },
 ]

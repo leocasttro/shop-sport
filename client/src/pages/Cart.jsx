@@ -1,9 +1,18 @@
-import Announcement from "../components/Announcement"
-import NavBar from "../components/NavBar"
-import Footer from "../components/Footer"
+import Announcement from "../components/Announcement";
+import NavBar from "../components/NavBar";
+import Footer from "../components/Footer";
+import { userRequest } from "../requestMethod";
 
 import styled from "styled-components";
 import { Add, Remove } from "@mui/icons-material";
+import { useSelector } from "react-redux";
+import StripeCheckout from "react-stripe-checkout";
+import { useState } from "react";
+import { useEffect } from "react";
+import { useNavigate } from "react-router-dom";
+
+const KEY = process.env.REACT_APP_STRIPE;
+
 
 const Container = styled.div`
 
@@ -145,6 +154,30 @@ const Button = styled.button`
 
 
 const Cart = () => {
+  const cart = useSelector(state => state.cart);
+  const [stripeToken, setStripeToken] = useState(null);
+  const navigate = useNavigate();
+
+  const onToken = (token) => {
+    setStripeToken(token);
+  };
+
+  useEffect(() => {
+    const makeRequest = async () => {
+      try {
+        const res = await userRequest.post('/checkout/payment', {
+          tokenId: stripeToken.id,
+          amount: cart.total * 100,
+        });
+        console.log(res.data)
+        navigate('/success', { state: { data: res.data } });
+      } catch (err) {
+        console.log(err);
+      }
+    };
+    stripeToken && makeRequest();
+  }, [stripeToken, cart.total, navigate]);
+  
   return (
     <Container>
       <Announcement />
@@ -154,56 +187,40 @@ const Cart = () => {
         <Top>
           <TopButton>CONTINUAR COMPRANDO</TopButton>
           <TopTexts>
-            <TopText>Carrinho de compras(2)</TopText>
+            <TopText>Carrinho de compras({cart.quantity})</TopText>
             <TopText>Lista de desejos(0)</TopText>
           </TopTexts>
           <TopButton type="filled">PAGAR AGORA</TopButton>
         </Top>
         <Bottom>
           <Info>
+            {cart.products.map(product => (
             <Product>
               <ProductDetails>
-                <Image src="../../assets/img/cp.png"/>
+                <Image src={product.img}/>
                 <Details>
-                  <ProductName><strong>Produto:</strong> Camisa Corinthias</ProductName>
-                  <ProductId><strong>ID:</strong> 347468</ProductId>
-                  <ProductSize><strong>Tamanho:</strong> G</ProductSize>
+                  <ProductName><strong>Produto:</strong> {product.title}</ProductName>
+                  <ProductId><strong>ID:</strong> {product._id}</ProductId>
+                  <ProductSize><strong>Tamanho:</strong> {product.size}</ProductSize>
                 </Details>
               </ProductDetails>
               <PriceDetails>
                 <ProductAmountContainer>
                   <Add />
-                  <ProductAmout>2</ProductAmout>
+                  <ProductAmout>{product.quantity}</ProductAmout>
                   <Remove />
                 </ProductAmountContainer>
-                <ProductPrice>R$ 300</ProductPrice>
+                <ProductPrice>R$ {product.price * product.quantity}</ProductPrice>
               </PriceDetails>
             </Product>
+            ))}
             <Hr />
-            <Product>
-              <ProductDetails>
-                <Image src="../../assets/img/cp.png"/>
-                <Details>
-                  <ProductName><strong>Produto:</strong> Camisa Corinthias</ProductName>
-                  <ProductId><strong>ID:</strong> 347468</ProductId>
-                  <ProductSize><strong>Tamanho:</strong> G</ProductSize>
-                </Details>
-              </ProductDetails>
-              <PriceDetails>
-                <ProductAmountContainer>
-                  <Add />
-                  <ProductAmout>2</ProductAmout>
-                  <Remove />
-                </ProductAmountContainer>
-                <ProductPrice>R$ 300</ProductPrice>
-              </PriceDetails>
-            </Product>
           </Info>
           <Summary>
             <SummaryTitle>Resumo do pedido</SummaryTitle>
             <SummaryItem>
               <SummaryText>Subtotal</SummaryText>
-              <SummaryPrice>R$ 300</SummaryPrice>
+              <SummaryPrice>R$ {cart.total}</SummaryPrice>
             </SummaryItem>
             <SummaryItem>
               <SummaryText>Envio estimado</SummaryText>
@@ -215,9 +232,20 @@ const Cart = () => {
             </SummaryItem>
             <SummaryItem type="total">
               <SummaryText>Total</SummaryText>
-              <SummaryPrice>R$ 300</SummaryPrice>
+              <SummaryPrice>R$ {cart.total}</SummaryPrice>
             </SummaryItem>
-            <Button>Finalizar</Button>
+            <StripeCheckout
+              name="SHOP-SPORT"
+              image="https://cdn-icons-png.flaticon.com/512/6963/6963703.png"
+              billingAddress
+              envio
+              description={`Seu cartão completo R$${cart.total}`}
+              amount={cart.total * 100}
+              token={onToken}
+              stripeKey={KEY}
+              >
+              <Button>Finalizar</Button>
+            </StripeCheckout>
           </Summary>
         </Bottom>
       </Wrapper>

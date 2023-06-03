@@ -29,17 +29,20 @@ export const categories = [
   {
     id: 1,
     img: "../assets/img/bvb.jpg",
-    title: "MASCULINA"
+    title: "MASCULINA",
+    cat: "man"
   },
   {
     id: 2,
     img: "../assets/img/bcs.jpg",
-    title: "FEMININA"
+    title: "FEMININA",
+    cat: "women"
   },
   {
     id: 3,
     img: "../assets/img/cr.jpg",
-    title: "INFANTIL"
+    title: "INFANTIL",
+    cat: "kid"
   }
 ]
 

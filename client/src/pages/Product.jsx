@@ -5,6 +5,13 @@ import Footer from "../components/Footer";
 import Navbar from "../components/NavBar";
 import NewsLetter from "../components/NewsLetter";
 
+import { plubicRequest } from "../requestMethod"
+import { useLocation } from "react-router-dom";
+import { useState } from "react";
+import { useEffect } from "react";
+import { addProduct } from "../redux/cartRedux"; 
+import { useDispatch } from "react-redux";
+
 const Container = styled.div`
 
 `;
@@ -92,39 +99,72 @@ const Button = styled.button`
 
 
 const Product = () => {
+  const location = useLocation();
+  const id = location.pathname.split('/')[2];
+
+  const [product, setProducts] = useState({});
+  const [quantity, setQuantity] = useState(1);
+  const [size, setSize] = useState('');
+  const dispatch = useDispatch();
+
+  useEffect(() => {
+    const getProducts = async () => {
+      try {
+        const res = await plubicRequest.get('/products/find/' + id);
+        console.log(res)
+        setProducts(res.data);
+      } catch (err) {
+        console.log(err);
+      }
+    };
+    getProducts();
+  }, [id]);
+
+  const handleQuantity = (type) => {
+    if (type === 'dec') {
+      quantity > 1 && setQuantity(quantity - 1);
+    } else {
+      setQuantity(quantity + 1);
+    }
+  };
+
+  const handleClick = () => {
+    dispatch(addProduct({ ...product, quantity, size }));
+    
+  }
+
   return (
     <Container>
       <Announcement />
       <Navbar />
       <Wrapper>
         <ImgContainer>
-          <Image src="../../assets/img/fla.png" />
+          <Image src={product.img} />
         </ImgContainer>
         <InfoContainer>
-          <Title>Camisa Flamengo</Title>
+          <Title>{product.title}</Title>
           <Desc>
             Lorem ipsum dolor sit amet consectetur adipisicing elit. Quo reiciendis, nostrum suscipit voluptatem recusandae, repudiandae saepe fugiat reprehenderit ipsum animi voluptate impedit aspernatur ut maxime molestiae numquam iste corrupti similique.
           </Desc>
-          <Price>$ 350</Price>
+          <Price>R$ {product.price}</Price>
           <FilterContainer>
             <Filter>
               <FilterTitle>Tamanho</FilterTitle>
-              <FilterSize>
-                <FilterSizeOption>PP</FilterSizeOption>
-                <FilterSizeOption>P</FilterSizeOption>
-                <FilterSizeOption>M</FilterSizeOption>
-                <FilterSizeOption>G</FilterSizeOption>
-                <FilterSizeOption>GG</FilterSizeOption>
+              <FilterSize onChange={(e) => setSize(e.target.value)}>
+              <FilterSizeOption disabled selected>--</FilterSizeOption>
+              {product.size?.map((s) => (
+                  <FilterSizeOption key={s}>{s.toUpperCase()}</FilterSizeOption>
+                ))}
               </FilterSize>
             </Filter>
           </FilterContainer>
           <AddContainer>
             <AmountContainer>
-              <Remove />
-              <Amount>1</Amount>
-              <Add />
+              <Remove onClick={() => handleQuantity('dec')}/>
+              <Amount>{quantity}</Amount>
+              <Add onClick={() => handleQuantity('inc')}/>
             </AmountContainer>
-            <Button>Adicionar ao carrinho</Button>
+            <Button onClick={handleClick}>Adicionar ao carrinho</Button>
           </AddContainer>
         </InfoContainer>
       </Wrapper>
